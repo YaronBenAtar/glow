@@ -92,6 +92,15 @@ void LLVMIRGen::initTargetOptions(llvm::TargetOptions &targetOpts,
   if (!backendOpts.getABIName().empty()) {
     targetOpts.MCOptions.ABIName = backendOpts.getABIName();
   }
+  
+  if (backendOpts.getCPU().rfind("cevasp", 0) == 0 ||
+      backendOpts.getTarget().rfind("senspro", 0) == 0) {
+    targetOpts.UnsafeFPMath = 1;
+    targetOpts.NoInfsFPMath = 1;
+    targetOpts.NoNaNsFPMath = 1;
+    targetOpts.NoSignedZerosFPMath = 1;
+    targetOpts.AllowFPOpFusion = llvm::FPOpFusion::Fast;
+  }
 }
 
 void LLVMIRGen::initTargetMachine(const LLVMBackendOptions &opts) {
@@ -116,12 +125,26 @@ void LLVMIRGen::initTargetMachine(const LLVMBackendOptions &opts) {
                                 LLVMBackend::getHostCPU(),
                                 LLVMBackend::getHostFeatures()));
   } else {
+    
+ 	if (opts.getCPU().rfind("cevasp", 0) == 0 ||
+        opts.getTarget().rfind("senspro", 0) == 0) {
+      TM_.reset(llvm::EngineBuilder()
+        .setOptLevel(llvm::CodeGenOpt::Default)
+        .setCodeModel(opts.getCodeModel())
+        .setRelocationModel(opts.getRelocModel())
+        .setTargetOptions(targetOpts)
+        .selectTarget(llvm::Triple(opts.getTarget()), opts.getArch(),
+          opts.getCPU(), opts.getTargetFeatures()));
+          
+    }
+    else {
     TM_.reset(llvm::EngineBuilder()
                   .setCodeModel(opts.getCodeModel())
                   .setRelocationModel(opts.getRelocModel())
                   .setTargetOptions(targetOpts)
                   .selectTarget(llvm::Triple(opts.getTarget()), opts.getArch(),
                                 opts.getCPU(), opts.getTargetFeatures()));
+	}
   }
   assert(TM_ && "Could not initialize the target machine");
 }

@@ -561,7 +561,24 @@ void BundleSaver::produceBundle() {
                           << "header file: " << bundleHeaderOutput << "\n");
   llvm::StringRef fileName = bundleCodeOutput;
   std::error_code EC;
-  llvm::raw_fd_ostream outputFile(fileName, EC, llvm::sys::fs::OF_None);
+#ifndef CEVA_REMOVED
+  auto& TM = irgen_->getTargetMachine();
+  bool IsSensPro = (TM.getTargetCPU().startswith("cevasp")) ||
+      TM.getTargetTriple().getArch() == llvm::Triple::ArchType::senspro ||
+      TM.getTargetTriple().getArch() == llvm::Triple::ArchType::cevasp;
+
+  std::string bundleCodeAsmOrObjOutput;
+  if (IsSensPro && llvmCompiler.empty())
+  {
+    bundleCodeAsmOrObjOutput = (outputDir + "/" + bundleName + ".s").str();
+  }
+  else 
+    bundleCodeAsmOrObjOutput = fileName;
+  llvm::raw_fd_ostream outputFile(bundleCodeAsmOrObjOutput, EC, llvm::sys::fs::F_None);
+#else
+  llvm::raw_fd_ostream outputFile(fileName, EC, llvm::sys::fs::F_None);
+#endif
+
   CHECK(!EC) << "Could not open the output file for saving the bundle "
                 "code with file name: "
              << fileName.str();
@@ -661,11 +678,42 @@ void BundleSaver::produceBundle() {
     TM.addPassesToEmitFile(
         PM, outputFile, llvm::TargetMachine::CodeGenFileType::CGFT_ObjectFile);
 #elif LLVM_VERSION_MAJOR < 10
+#ifndef CEVA_REMOVED
+    if (IsSensPro) {
+
+      TM.addPassesToEmitFile(
+        PM, outputFile, nullptr,
+        llvm::TargetMachine::CodeGenFileType::CGFT_AssemblyFile);
+    }
+    else {
+      TM.addPassesToEmitFile(
+        PM, outputFile, nullptr, 
+        llvm::TargetMachine::CodeGenFileType::CGFT_ObjectFile);
+    }
+#else
     TM.addPassesToEmitFile(
         PM, outputFile, nullptr,
         llvm::TargetMachine::CodeGenFileType::CGFT_ObjectFile);
+#endif
 #else
-    TM.addPassesToEmitFile(PM, outputFile, nullptr, llvm::CGFT_ObjectFile);
+
+#ifndef CEVA_REMOVED
+    if (IsSensPro) {
+
+      TM.addPassesToEmitFile(
+        PM, outputFile, nullptr,
+        llvm::TargetMachine::CodeGenFileType::CGFT_AssemblyFile);
+    }
+    else {
+      TM.addPassesToEmitFile(
+        PM, outputFile, nullptr, 
+        llvm::TargetMachine::CodeGenFileType::CGFT_ObjectFile);
+    }
+#else
+    TM.addPassesToEmitFile(
+        PM, outputFile, nullptr,
+        llvm::TargetMachine::CodeGenFileType::CGFT_ObjectFile);
+#endif
 #endif
     PM.run(M);
   }
