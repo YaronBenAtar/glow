@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//#ifdef GLOW_WITH_SPF2
+//#ifdef GLOW_WITH_CevaSPF2
 
-void SPF2MaxSplatInst::verify() const {
+void CevaSPF2MaxSplatInst::verify() const {
   assert(getSrc()->getType() == getDest()->getType() && "Invalid type");
   assert(getSrc()->dims() == getDest()->dims() && "Invalid shape");
 }
 
-void SPF2ConvDKKC8Inst::verify() const {
+void CevaSPF2ConvDKKC8Inst::verify() const {
   assert(getSrc()->dims()[3] % getGroup() == 0 &&
          "Input channels must be divisible by group.");
   assert(getDest()->dims()[3] % getGroup() == 0 &&
@@ -33,4 +33,4 @@ void SPF2ConvDKKC8Inst::verify() const {
          "Invalid Element Type");
 }
 
-//#endif // GLOW_WITH_SPF2
+//#endif // GLOW_WITH_CevaSPF2

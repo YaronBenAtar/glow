@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef GLOW_BACKENDS_SPF2_SPF2LLVMIRGEN_H
-#define GLOW_BACKENDS_SPF2_SPF2LLVMIRGEN_H
+#ifndef GLOW_BACKENDS_CevaSPF2_CevaSPF2LLVMIRGEN_H
+#define GLOW_BACKENDS_CevaSPF2_CevaSPF2LLVMIRGEN_H
 
 #include "glow/LLVMIRCodeGen/LLVMIRGen.h"
 
@@ -22,16 +22,16 @@ namespace glow {
 
 /// This is a class containing a common logic for the generation of the LLVM IR
 /// from an IRFunction. The primary clients of this class are JITs and bundlers.
-class SPF2LLVMIRGen : public LLVMIRGen {
+class CevaSPF2LLVMIRGen : public LLVMIRGen {
 
 public:
   /// Destructor
-  virtual ~SPF2LLVMIRGen() = default;
+  virtual ~CevaSPF2LLVMIRGen() = default;
   /// Ctor.
-  explicit SPF2LLVMIRGen(const IRFunction *M, AllocationsInfo &allocationsInfo,
+  explicit CevaSPF2LLVMIRGen(const IRFunction *M, AllocationsInfo &allocationsInfo,
                         std::string mainEntryName, llvm::StringRef libjitBC);
   /// Ctor.
-  explicit SPF2LLVMIRGen(const IRFunction *M, AllocationsInfo &allocationsInfo,
+  explicit CevaSPF2LLVMIRGen(const IRFunction *M, AllocationsInfo &allocationsInfo,
                         std::string mainEntryName, llvm::StringRef libjitBC,
                         llvm::ArrayRef<llvm::MemoryBufferRef> objectRegistry);
 
@@ -52,4 +52,4 @@ public:
 
 } // namespace glow
 
-#endif // GLOW_BACKENDS_SPF2_SPF2LLVMIRGEN_H
+#endif // GLOW_BACKENDS_CevaSPF2_CevaSPF2LLVMIRGEN_H

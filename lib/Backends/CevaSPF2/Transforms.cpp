@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "SPF2Backend.h"
+#include "CevaSPF2Backend.h"
 
 #include "glow/Graph/Graph.h"
 #include "glow/Graph/Nodes.h"
@@ -31,7 +31,7 @@ using llvm::isa;
 /// This optimization changes the data layout to [D/8, K, K, C, 8].  We
 /// pre-swizzle the data in the weights to make the access pattern more
 /// efficient.
-static Node *optimizeSPF2Conv(ConvolutionNode *CN, Function *F) {
+static Node *optimizeCevaSPF2Conv(ConvolutionNode *CN, Function *F) {
   auto depth = CN->getFilter().dims()[0];
   auto *M = F->getParent();
   auto group = CN->getGroup();
@@ -85,16 +85,16 @@ static Node *optimizeSPF2Conv(ConvolutionNode *CN, Function *F) {
           F8H.at({c0 / 8, c1, c2, c3, c0 % 8}) = FH.at({c0, c1, c2, c3});
         }
 
-  return F->addNode(new SPF2ConvDKKC8Node(
+  return F->addNode(new CevaSPF2ConvDKKC8Node(
       CN->getName(), CN->getResult().getType(), CN->getInput(), filter8,
       CN->getBias(), CN->getKernels(), CN->getStrides(), CN->getPads(), group));
 }
 
-/// Merge Max and Splat nodes into target-specific SPF2MaxSplat node.
+/// Merge Max and Splat nodes into target-specific CevaSPF2MaxSplat node.
 /// For quantized network, sinkRescaleQuantizedNode transformation might have
 /// merged Rescale into Max node. In this case we need to pull it out, since
-/// SPF2MaxSplat requires input and output to be quantized the same way.
-static Node *optimizeSPF2MaxSplat(MaxNode *MN, Function *F) {
+/// CevaSPF2MaxSplat requires input and output to be quantized the same way.
+static Node *optimizeCevaSPF2MaxSplat(MaxNode *MN, Function *F) {
   SplatNode *splat;
   NodeValue input;
 
@@ -122,28 +122,28 @@ static Node *optimizeSPF2MaxSplat(MaxNode *MN, Function *F) {
          "Element type and dimensions of the max inputs must match.");
 
   return F->addNode(
-      new SPF2MaxSplatNode(MN->getName(), input, splat->getValue()));
+      new CevaSPF2MaxSplatNode(MN->getName(), input, splat->getValue()));
 }
 
 Expected<bool>
-SPF2Backend::transformPostLowering(Function *F, CompilationContext &,
+CevaSPF2Backend::transformPostLowering(Function *F, CompilationContext &,
                                   const glow::runtime::DeviceInfo *) const {
-  LOG_SCOPE(F->getLogContext(), "SPF2Backend::transformPostLowering")
+  LOG_SCOPE(F->getLogContext(), "CevaSPF2Backend::transformPostLowering")
 
   bool changed = false;
   for (auto &node : F->getNodes()) {
     // Try to replace generic convolution with cpu-optimized version.
     if (auto *CN = dyn_cast<ConvolutionNode>(&node)) {
-      if (Node *NCN = optimizeSPF2Conv(CN, F)) {
+      if (Node *NCN = optimizeCevaSPF2Conv(CN, F)) {
         CN->getResult().replaceAllUsesOfWith(NCN);
         changed = true;
         continue;
       }
     }
 
-    // Merge Max and Splat nodes into SPF2MaxSplat.
+    // Merge Max and Splat nodes into CevaSPF2MaxSplat.
     if (auto *MN = dyn_cast<MaxNode>(&node)) {
-      if (Node *MSN = optimizeSPF2MaxSplat(MN, F)) {
+      if (Node *MSN = optimizeCevaSPF2MaxSplat(MN, F)) {
         MN->getResult().replaceAllUsesOfWith(MSN);
         changed = true;
         continue;

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-Error ONNXModelWriter::writeSPF2MaxSplat(const SPF2MaxSplatNode *node,
+Error ONNXModelWriter::writeCevaSPF2MaxSplat(const CevaSPF2MaxSplatNode *node,
                                         GraphType &graph) {
   auto *proto = graph.add_node();
   // Add dictionary entries.
   addValueAttribute(proto, "value", node->getSplatValue());
 
-  return writeAllWithNode("SPF2MaxSplat", node, graph, proto);
+  return writeAllWithNode("CevaSPF2MaxSplat", node, graph, proto);
 }
 
-Error ONNXModelWriter::writeSPF2ConvDKKC8(const SPF2ConvDKKC8Node *node,
+Error ONNXModelWriter::writeCevaSPF2ConvDKKC8(const CevaSPF2ConvDKKC8Node *node,
                                          GraphType &graph) {
   auto *proto = graph.add_node();
   // Add dictionary entries.
@@ -32,5 +32,5 @@ Error ONNXModelWriter::writeSPF2ConvDKKC8(const SPF2ConvDKKC8Node *node,
   addValueAttribute(proto, "pads", node->getPads());
   addValueAttribute(proto, "group", node->getGroup());
 
-  return writeAllWithNode("SPF2ConvDKKC8", node, graph, proto);
+  return writeAllWithNode("CevaSPF2ConvDKKC8", node, graph, proto);
 }

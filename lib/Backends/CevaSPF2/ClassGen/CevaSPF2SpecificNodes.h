@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//#ifdef GLOW_WITH_SPF2
+//#ifdef GLOW_WITH_CevaSPF2
 
-BB.newBackendSpecificNode("SPF2MaxSplat")
+BB.newBackendSpecificNode("CevaSPF2MaxSplat")
     .addInput("Input")
     .addResult("Input.getType()")
     .addMember(MemberType::Float, "SplatValue")
-    .setDocstring("A Max node with one splat input; SPF2 specific.");
+    .setDocstring("A Max node with one splat input; CevaSPF2 specific.");
 
-BB.newBackendSpecificNode("SPF2ConvDKKC8")
+BB.newBackendSpecificNode("CevaSPF2ConvDKKC8")
     .addInput("Input")
     .addInput("Filter")
     .addInput("Bias")
@@ -33,6 +33,6 @@ BB.newBackendSpecificNode("SPF2ConvDKKC8")
     .setDocstring("This is a cpu-specific convolution implementation where the "
                   "filter is transposed to the shape [D/8, K, K, C, 8]");
 
-BB.includeBackendSpecificVerification("glow/SPF2SpecificNodesVerification.h");
+BB.includeBackendSpecificVerification("glow/CevaSPF2SpecificNodesVerification.h");
 
-//#endif // GLOW_WITH_SPF2
+//#endif // GLOW_WITH_CevaSPF2

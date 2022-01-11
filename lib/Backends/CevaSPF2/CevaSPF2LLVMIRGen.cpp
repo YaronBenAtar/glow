@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "SPF2LLVMIRGen.h"
+#include "CevaSPF2LLVMIRGen.h"
 
 #include "glow/IR/Instrs.h"
 #include "glow/LLVMIRCodeGen/LLVMBackend.h"
@@ -23,23 +23,23 @@
 using namespace glow;
 using llvm::cast;
 
-SPF2LLVMIRGen::SPF2LLVMIRGen(const IRFunction *F,
+CevaSPF2LLVMIRGen::CevaSPF2LLVMIRGen(const IRFunction *F,
                            AllocationsInfo &allocationsInfo,
                            std::string mainEntryName, llvm::StringRef libjitBC)
     : LLVMIRGen(F, allocationsInfo, mainEntryName, libjitBC) {}
 
-SPF2LLVMIRGen::SPF2LLVMIRGen(const IRFunction *F,
+CevaSPF2LLVMIRGen::CevaSPF2LLVMIRGen(const IRFunction *F,
                            AllocationsInfo &allocationsInfo,
                            std::string mainEntryName, llvm::StringRef libjitBC,
                            llvm::ArrayRef<llvm::MemoryBufferRef> objectRegistry)
     : LLVMIRGen(F, allocationsInfo, mainEntryName, libjitBC, objectRegistry) {}
 
-void SPF2LLVMIRGen::generateLLVMIRForModule(llvm::IRBuilder<> &builder) {
+void CevaSPF2LLVMIRGen::generateLLVMIRForModule(llvm::IRBuilder<> &builder) {
   // TODO: Add here any backend specific logic.
   LLVMIRGen::generateLLVMIRForModule(builder);
 }
 
-void SPF2LLVMIRGen::generateLLVMIRForInstr(llvm::IRBuilder<> &builder,
+void CevaSPF2LLVMIRGen::generateLLVMIRForInstr(llvm::IRBuilder<> &builder,
                                           const glow::Instruction *I) {
   setCurrentDebugLocation(builder, I);
   assert(!canBePartOfDataParallelKernel(I) &&
@@ -47,8 +47,8 @@ void SPF2LLVMIRGen::generateLLVMIRForInstr(llvm::IRBuilder<> &builder,
   // Perform any backend-specific code generation here and delegate everything
   // else to LLVMIRGen.
   switch (I->getKind()) {
-  case Kinded::Kind::SPF2ConvDKKC8InstKind: {
-    auto *CI = cast<SPF2ConvDKKC8Inst>(I);
+  case Kinded::Kind::CevaSPF2ConvDKKC8InstKind: {
+    auto *CI = cast<CevaSPF2ConvDKKC8Inst>(I);
     auto *dest = CI->getDest();
     auto *src = CI->getSrc();
     auto *filter = CI->getFilter();
@@ -122,7 +122,7 @@ void SPF2LLVMIRGen::generateLLVMIRForInstr(llvm::IRBuilder<> &builder,
   }
 }
 
-void SPF2LLVMIRGen::generateLLVMIRForDataParallelInstr(
+void CevaSPF2LLVMIRGen::generateLLVMIRForDataParallelInstr(
     llvm::IRBuilder<> &builder, const glow::Instruction *I,
     llvm::Function *kernel, llvm::DenseMap<Value *, int> &bufferToArgNum,
     llvm::Value *loopCount) {
@@ -132,8 +132,8 @@ void SPF2LLVMIRGen::generateLLVMIRForDataParallelInstr(
   // Perform any backend-specific code generation here and delegate everything
   // else to LLVMIRGen.
   switch (I->getKind()) {
-  case Kinded::Kind::SPF2MaxSplatInstKind: {
-    auto *AN = cast<SPF2MaxSplatInst>(I);
+  case Kinded::Kind::CevaSPF2MaxSplatInstKind: {
+    auto *AN = cast<CevaSPF2MaxSplatInst>(I);
     auto *dest = AN->getDest();
     auto V = AN->getSplatValue();
     auto *destPtr = emitBufferAddress(builder, dest, kernel, bufferToArgNum);

@@ -13,15 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-//#ifdef GLOW_WITH_SPF2
+//#ifdef GLOW_WITH_CevaSPF2
 
 #include "glow/Graph/VerifierHelper.h"
 
-bool SPF2MaxSplatNode::verify() const {
+bool CevaSPF2MaxSplatNode::verify() const {
   return checkSameType(getInput(), getResult(), this);
 }
 
-bool SPF2ConvDKKC8Node::verify() const {
+bool CevaSPF2ConvDKKC8Node::verify() const {
   ShapeNHWC idim(getInput().getType()->dims());
   ShapeNHWC odim(getResult().getType()->dims());
   auto outSz = calculateConvPoolOutputDims(idim.h, idim.w, getKernels(),
@@ -30,4 +30,4 @@ bool SPF2ConvDKKC8Node::verify() const {
   return expectCompareTrue("Invalid output dimensions", exp, odim, this);
 }
 
-//#endif // GLOW_WITH_SPF2
+//#endif // GLOW_WITH_CevaSPF2

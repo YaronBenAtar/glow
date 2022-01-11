@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef GLOW_BACKENDS_SPF2_SPF2DEVICEMANAGER_H
-#define GLOW_BACKENDS_SPF2_SPF2DEVICEMANAGER_H
+#ifndef GLOW_BACKENDS_CevaSPF2_CevaSPF2DEVICEMANAGER_H
+#define GLOW_BACKENDS_CevaSPF2_CevaSPF2DEVICEMANAGER_H
 
 #include "glow/Backends/QueueBackedDeviceManager.h"
 #include "glow/Runtime/StatsExporter.h"
@@ -24,25 +24,25 @@
 namespace glow {
 namespace runtime {
 
-/// A class controlling a single SPF2 thread of execution driving the JIT
-/// backend. Many SPF2Functions may be added, but only one inference is executed
+/// A class controlling a single CevaSPF2 thread of execution driving the JIT
+/// backend. Many CevaSPF2Functions may be added, but only one inference is executed
 /// at a time.
-class SPF2DeviceManager : public QueueBackedDeviceManager {
+class CevaSPF2DeviceManager : public QueueBackedDeviceManager {
   /// Compiled function list by name.
   FunctionMapTy functions_;
 
   /// String constant for logging number of in-use devices.
-  static constexpr const char *kDevicesUsedSPF2 = "glow.devices_used.cpu";
+  static constexpr const char *kDevicesUsedCevaSPF2 = "glow.devices_used.cpu";
 
 public:
-  explicit SPF2DeviceManager(const DeviceConfig &config)
+  explicit CevaSPF2DeviceManager(const DeviceConfig &config)
       : QueueBackedDeviceManager(config) {
-    statsExporterRegistry_->incrementCounter(kDevicesUsedSPF2);
+    statsExporterRegistry_->incrementCounter(kDevicesUsedCevaSPF2);
     exportMemoryCounters();
   }
 
-  ~SPF2DeviceManager() override {
-    statsExporterRegistry_->incrementCounter(kDevicesUsedSPF2, -1);
+  ~CevaSPF2DeviceManager() override {
+    statsExporterRegistry_->incrementCounter(kDevicesUsedCevaSPF2, -1);
     zeroMemoryCounters();
   }
 
@@ -72,9 +72,9 @@ protected:
                        ResultCBTy cb) override;
 };
 
-DeviceManager *createSPF2DeviceManager(const DeviceConfig &config);
+DeviceManager *createCevaSPF2DeviceManager(const DeviceConfig &config);
 
 } // namespace runtime
 } // namespace glow
 
-#endif // GLOW_BACKENDS_SPF2_SPF2DEVICEMANAGER_H
+#endif // GLOW_BACKENDS_CevaSPF2_CevaSPF2DEVICEMANAGER_H

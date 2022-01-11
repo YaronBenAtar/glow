@@ -13,10 +13,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef GLOW_BACKENDS_SPF2_SPF2BACKEND_H
-#define GLOW_BACKENDS_SPF2_SPF2BACKEND_H
+#ifndef GLOW_BACKENDS_CevaSPF2_CevaSPF2BACKEND_H
+#define GLOW_BACKENDS_CevaSPF2_CevaSPF2BACKEND_H
 
-#include "SPF2DeviceManager.h"
+#include "CevaSPF2DeviceManager.h"
 
 #include "glow/Backend/Backend.h"
 #include "glow/Base/Tensor.h"
@@ -31,19 +31,19 @@ namespace glow {
 
 class NodeInfo;
 
-class SPF2Backend : public LLVMBackend {
+class CevaSPF2Backend : public LLVMBackend {
 public:
-  SPF2Backend();
+  CevaSPF2Backend();
 
   /// @name Backend methods.
   /// This is the implementation of the Backend interface.
   ///@{
-  virtual ~SPF2Backend() override = default;
+  virtual ~CevaSPF2Backend() override = default;
 
   std::string getBackendName() const override {
     return Named::getName().empty() ? getName() : Named::getName().str();
   }
-  static std::string getName() { return "SPF2"; }
+  static std::string getName() { return "CevaSPF2"; }
   static unsigned numDevices();
   static std::vector<unsigned> scanDeviceIDs();
 
@@ -61,7 +61,7 @@ public:
 
   runtime::DeviceManager *
   createDeviceManager(const runtime::DeviceConfig &deviceConfig) override {
-    return createSPF2DeviceManager(deviceConfig);
+    return createCevaSPF2DeviceManager(deviceConfig);
   }
 
   /// \returns true if network supports Type Lowering from \p T1 to \p T2.
@@ -93,4 +93,4 @@ protected:
 
 } // namespace glow
 
-#endif // GLOW_BACKENDS_SPF2_SPF2BACKEND_H
+#endif // GLOW_BACKENDS_CevaSPF2_CevaSPF2BACKEND_H

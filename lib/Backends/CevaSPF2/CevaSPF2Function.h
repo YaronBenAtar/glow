@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef GLOW_BACKENDS_SPF2_SPF2FUNCTION_H
-#define GLOW_BACKENDS_SPF2_SPF2FUNCTION_H
+#ifndef GLOW_BACKENDS_CevaSPF2_CevaSPF2FUNCTION_H
+#define GLOW_BACKENDS_CevaSPF2_CevaSPF2FUNCTION_H
 
 #include "glow/LLVMIRCodeGen/GlowJIT.h"
 #include "glow/LLVMIRCodeGen/LLVMCompiledFunction.h"
@@ -24,22 +24,22 @@
 #include "glow/Backend/CompiledFunction.h"
 
 namespace glow {
-/// A Glow IR function compiled for the SPF2 using LLVM.
-class SPF2Function final : public LLVMCompiledFunction {
+/// A Glow IR function compiled for the CevaSPF2 using LLVM.
+class CevaSPF2Function final : public LLVMCompiledFunction {
 public:
-  SPF2Function(std::unique_ptr<llvm::orc::GlowJIT> JIT,
+  CevaSPF2Function(std::unique_ptr<llvm::orc::GlowJIT> JIT,
               runtime::RuntimeBundle &&runtimeBundle);
 
   /// \name CompiledFunction interface
   ///@{
-  ~SPF2Function() override = default;
+  ~CevaSPF2Function() override = default;
   Error execute(ExecutionContext *context) override;
 
   /// \returns the backend used to compile this function.
-  virtual std::string getCompileBackendName() const override { return "SPF2"; }
+  virtual std::string getCompileBackendName() const override { return "CevaSPF2"; }
   ///@}
   //
 };
 } // end namespace glow
 
-#endif // GLOW_BACKENDS_SPF2_SPF2FUNCTION_H
+#endif // GLOW_BACKENDS_CevaSPF2_CevaSPF2FUNCTION_H

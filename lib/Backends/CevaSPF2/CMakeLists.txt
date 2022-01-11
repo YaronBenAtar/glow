@@ -4,21 +4,21 @@ include(GlowAddLibjit)
 include(GlowSerialize)
 
 # LIBJIT LLVM common source files.
-set(LIBJIT_SPF2_SOURCE_FILES)
-list(APPEND LIBJIT_SPF2_SOURCE_FILES
+set(LIBJIT_CevaSPF2_SOURCE_FILES)
+list(APPEND LIBJIT_CevaSPF2_SOURCE_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/../../LLVMIRCodeGen/libjit/libjit.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/../../LLVMIRCodeGen/libjit/libjit_conv.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/../../LLVMIRCodeGen/libjit/libjit_matmul.cpp
 )
 
-# LIBJIT SPF2 specific source files.
-list(APPEND LIBJIT_SPF2_SOURCE_FILES
+# LIBJIT CevaSPF2 specific source files.
+list(APPEND LIBJIT_CevaSPF2_SOURCE_FILES
   ${CMAKE_CURRENT_SOURCE_DIR}/libjit_spf2/libjit_spf2.cpp
   ${CMAKE_CURRENT_SOURCE_DIR}/libjit_spf2/libjit_spf2_conv.cpp
 )
 
-# LIBJIT SPF2 compile options.
-set(LIBJIT_SPF2_COMPILE_OPTIONS
+# LIBJIT CevaSPF2 compile options.
+set(LIBJIT_CevaSPF2_COMPILE_OPTIONS
   -I${CMAKE_CURRENT_SOURCE_DIR}/../../LLVMIRCodeGen/libjit
   -std=c++14
   #-g
@@ -42,11 +42,6 @@ set(LIBJIT_SPF2_COMPILE_OPTIONS
   # string. Also, when building bundles, specify the -llvm-compiler option
   # together with -llvm-compiler-opt to specify custom compilation flags for
   # cross-compilation.
-  # for X86 with SensPro LLVM9.0
-  #-I"c:/Program Files (x86)/Microsoft Visual Studio/2017/Professional/VC/Tools/MSVC/14.16.27023/include"
-  #-Ic:/TempTools/SP/cevatools/lib/clang/9.0.1/cevasp-unknown-unknown-elf/rtlv1.0.0-fp0-dpfp0/include/c++/v1
-  #-Ic:/TempTools/SP/cevatools/lib/clang/9.0.1/cevasp-unknown-unknown-elf/rtlv1.0.0-fp0-dpfp0/include
-  #-D__NEED_ssize_t
   
   # --sysroot=/usr/arm-linux-gnueabihf/
   # -target armv7-neon-linux-gnueabihf
@@ -54,35 +49,35 @@ set(LIBJIT_SPF2_COMPILE_OPTIONS
   # -emit-llvm
   -DDIM_T_32
   -fno-finite-math-only -ffast-math -DFFAST_MATH
-  ${LLVMSPF2RuntimeExtraFlags}
+  ${LLVMCevaSPF2RuntimeExtraFlags}
 
   # Include LIBJIT external functions (callbacks).
   -DGLOW_LIBJIT_EXTERNAL_FUNCTIONS
 )
 
-# Add SPF2 LIBJIT.
+# Add CevaSPF2 LIBJIT.
 glow_add_libjit(
   NAME "libjit_spf2"
-  SOURCE_FILES ${LIBJIT_SPF2_SOURCE_FILES}
-  COMPILE_OPTIONS ${LIBJIT_SPF2_COMPILE_OPTIONS}
+  SOURCE_FILES ${LIBJIT_CevaSPF2_SOURCE_FILES}
+  COMPILE_OPTIONS ${LIBJIT_CevaSPF2_COMPILE_OPTIONS}
 )
 
-# Add native SPF2 LIBJIT library used for testing.
+# Add native CevaSPF2 LIBJIT library used for testing.
 if (NOT MSVC)
-  add_library(SPF2RuntimeNative
-              ${LIBJIT_SPF2_SOURCE_FILES})
+  add_library(CevaSPF2RuntimeNative
+              ${LIBJIT_CevaSPF2_SOURCE_FILES})
 endif(NOT MSVC)
 
-add_library(SPF2Backend
+add_library(CevaSPF2Backend
             ${libjit_spf2_INCLUDE_FILE}
-            SPF2Backend.cpp
-            SPF2DeviceManager.cpp
-            SPF2Factory.cpp
-            SPF2Function.cpp
-            SPF2LLVMIRGen.cpp
+            CevaSPF2Backend.cpp
+            CevaSPF2DeviceManager.cpp
+            CevaSPF2Factory.cpp
+            CevaSPF2Function.cpp
+            CevaSPF2LLVMIRGen.cpp
             Transforms.cpp)
 
-target_link_libraries(SPF2Backend
+target_link_libraries(CevaSPF2Backend
                       PUBLIC
                         Backend
                         Base
@@ -97,17 +92,12 @@ target_link_libraries(SPF2Backend
                         Runtime
                         LLVMIRCodeGen)
 
-add_dependencies(SPF2Backend libjit_spf2_TARGET)
+add_dependencies(CevaSPF2Backend libjit_spf2_TARGET)
 
-set(linked_backends ${linked_backends} SPF2Backend PARENT_SCOPE)
+set(linked_backends ${linked_backends} CevaSPF2Backend PARENT_SCOPE)
 
-# List the object files from "libobj_cpu" directory.
+# List the object files from "libobj_spf2" directory.
 FILE(GLOB objects "${CMAKE_CURRENT_LIST_DIR}/libobj_spf2/*.o")
-
-# Add object file for testing.
-if (GLOW_WITH_BUNDLES)
-  list(APPEND objects "${GLOW_SOURCE_DIR}/examples/bundles/bundle_with_extra_objects/test.o")
-endif()
 
 # Serialize external object files.
 glow_serialize(
@@ -117,5 +107,5 @@ glow_serialize(
   OUT_VAR "spf2ObjectRegistry"
   OUT_TARGET spf2ObjectRegistryTarget
 )
-add_dependencies(SPF2Backend spf2ObjectRegistryTarget)
+add_dependencies(CevaSPF2Backend spf2ObjectRegistryTarget)
 include_directories(${GLOW_BINARY_DIR}/libobj/libobj_spf2)

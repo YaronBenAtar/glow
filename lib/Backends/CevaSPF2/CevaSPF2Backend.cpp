@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "SPF2Backend.h"
-#include "SPF2Function.h"
-#include "SPF2LLVMIRGen.h"
+#include "CevaSPF2Backend.h"
+#include "CevaSPF2Function.h"
+#include "CevaSPF2LLVMIRGen.h"
 
 #include "glow/Backend/BackendUtils.h"
 #include "glow/Graph/Graph.h"
@@ -33,7 +33,7 @@
 
 using namespace glow;
 
-SPF2Backend::SPF2Backend() {
+CevaSPF2Backend::CevaSPF2Backend() {
   /// If target is not explicitly given we use the host attributes.
   auto &opts = getOptions();
   if (opts.getTarget().empty()) {
@@ -52,14 +52,14 @@ static const unsigned char libjit_bc[] = {
 };
 static const size_t libjit_bc_size = sizeof(libjit_bc);
 
-bool SPF2Backend::isOpSupported(const NodeInfo &NI) const {
+bool CevaSPF2Backend::isOpSupported(const NodeInfo &NI) const {
   switch (NI.getKind()) {
 
-  case Kinded::Kind::SPF2MaxSplatNodeKind:
+  case Kinded::Kind::CevaSPF2MaxSplatNodeKind:
     return NI.allInputsAndOutputsHaveSameElemKind(
         {ElemKind::FloatTy, ElemKind::Int8QTy});
 
-  case Kinded::Kind::SPF2ConvDKKC8NodeKind:
+  case Kinded::Kind::CevaSPF2ConvDKKC8NodeKind:
     return NI.allInputsAndOutputsHaveSameElemKind({ElemKind::FloatTy});
 
   // Delegate everything else to the LLVM backend.
@@ -68,7 +68,7 @@ bool SPF2Backend::isOpSupported(const NodeInfo &NI) const {
   }
 }
 
-bool SPF2Backend::shouldLower(const Node *N) const {
+bool CevaSPF2Backend::shouldLower(const Node *N) const {
   switch (N->getKind()) {
   case Kinded::Kind::ReluNodeKind:
   case Kinded::Kind::ClipNodeKind:
@@ -82,8 +82,8 @@ bool SPF2Backend::shouldLower(const Node *N) const {
   }
 }
 
-bool SPF2Backend::supportsFusedActivation(Node *parent, Node *activation) const {
-  // SPF2 backend only supports fusing activations into Convolution and
+bool CevaSPF2Backend::supportsFusedActivation(Node *parent, Node *activation) const {
+  // CevaSPF2 backend only supports fusing activations into Convolution and
   // ChannelwiseQuantizedConvolution.
   if (!llvm::isa<ConvolutionNode>(parent) &&
       !llvm::isa<ChannelwiseQuantizedConvolutionNode>(parent)) {
@@ -110,32 +110,32 @@ bool SPF2Backend::supportsFusedActivation(Node *parent, Node *activation) const 
   }
 }
 
-unsigned SPF2Backend::numDevices() {
+unsigned CevaSPF2Backend::numDevices() {
   return std::thread::hardware_concurrency();
 }
 
-std::vector<unsigned> SPF2Backend::scanDeviceIDs() {
-  std::vector<unsigned> deviceIDs(SPF2Backend::numDevices());
+std::vector<unsigned> CevaSPF2Backend::scanDeviceIDs() {
+  std::vector<unsigned> deviceIDs(CevaSPF2Backend::numDevices());
   std::iota(std::begin(deviceIDs), std::end(deviceIDs), 0);
   return deviceIDs;
 }
 
-std::unique_ptr<CompiledFunction> SPF2Backend::createCompiledFunction(
+std::unique_ptr<CompiledFunction> CevaSPF2Backend::createCompiledFunction(
     std::unique_ptr<GlowJIT> JIT,
     runtime::RuntimeBundle &&runtimeBundle) const {
-  return glow::make_unique<SPF2Function>(std::move(JIT),
+  return glow::make_unique<CevaSPF2Function>(std::move(JIT),
                                         std::move(runtimeBundle));
 }
 
 std::unique_ptr<LLVMIRGen>
-SPF2Backend::createIRGen(const IRFunction *IR,
+CevaSPF2Backend::createIRGen(const IRFunction *IR,
                         AllocationsInfo &allocationsInfo) const {
-  SPF2LLVMIRGen *irgen = new SPF2LLVMIRGen(
+  CevaSPF2LLVMIRGen *irgen = new CevaSPF2LLVMIRGen(
       IR, allocationsInfo, "", getLibjitBitcode(), getObjectRegistry());
-  return std::unique_ptr<SPF2LLVMIRGen>(irgen);
+  return std::unique_ptr<CevaSPF2LLVMIRGen>(irgen);
 }
 
-llvm::StringRef SPF2Backend::getLibjitBitcode() const {
+llvm::StringRef CevaSPF2Backend::getLibjitBitcode() const {
   return llvm::StringRef(reinterpret_cast<const char *>(libjit_bc),
                          libjit_bc_size);
 }
@@ -143,7 +143,7 @@ llvm::StringRef SPF2Backend::getLibjitBitcode() const {
 /// \returns true if network supports Type Lowering from \p T1 to \p T2.
 /// Populates PrecisionConfiguration with black list of operations that can't be
 /// converted.
-bool SPF2Backend::canDoIndexTypeDemotion(
+bool CevaSPF2Backend::canDoIndexTypeDemotion(
     ElemKind fromTy, ElemKind toTy, PrecisionConfiguration &precConfig) const {
   precConfig.precisionModeKindSet.insert(Kinded::Kind::EmbeddingBagNodeKind);
   precConfig.precisionModeKindSet.insert(
@@ -158,12 +158,12 @@ bool SPF2Backend::canDoIndexTypeDemotion(
 }
 
 #if FACEBOOK_INTERNAL
-llvm::ArrayRef<llvm::MemoryBufferRef> SPF2Backend::getObjectRegistry() const {
+llvm::ArrayRef<llvm::MemoryBufferRef> CevaSPF2Backend::getObjectRegistry() const {
   return llvm::ArrayRef<llvm::MemoryBufferRef>();
 }
 #else
 #include "spf2ObjectRegistry.h"
-llvm::ArrayRef<llvm::MemoryBufferRef> SPF2Backend::getObjectRegistry() const {
+llvm::ArrayRef<llvm::MemoryBufferRef> CevaSPF2Backend::getObjectRegistry() const {
   return spf2ObjectRegistry;
 }
 #endif

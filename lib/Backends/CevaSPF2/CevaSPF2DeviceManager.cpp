@@ -13,8 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "SPF2DeviceManager.h"
-#include "SPF2Function.h"
+#include "CevaSPF2DeviceManager.h"
+#include "CevaSPF2Function.h"
 
 #include "glow/Flags/Flags.h"
 
@@ -26,29 +26,29 @@ namespace glow {
 namespace runtime {
 
 
-DeviceManager *createSPF2DeviceManager(const DeviceConfig &config) {
+DeviceManager *createCevaSPF2DeviceManager(const DeviceConfig &config) {
   if (flags::CPUMemory) {
-    // Convert command line GlowSPF2Memory to bytes from kilobytes.
+    // Convert command line GlowCevaSPF2Memory to bytes from kilobytes.
     auto configNew = config;
     configNew.setDeviceMemory(uint64_t{flags::CPUMemory} * 1024);
-    return new SPF2DeviceManager(configNew);
+    return new CevaSPF2DeviceManager(configNew);
   }
-  return new SPF2DeviceManager(config);
+  return new CevaSPF2DeviceManager(config);
 }
 
-uint64_t SPF2DeviceManager::getMaximumMemory() const { return maxMemoryBytes_; }
+uint64_t CevaSPF2DeviceManager::getMaximumMemory() const { return maxMemoryBytes_; }
 
-uint64_t SPF2DeviceManager::getAvailableMemory() const {
+uint64_t CevaSPF2DeviceManager::getAvailableMemory() const {
   return maxMemoryBytes_ - usedMemoryBytes_;
 }
 
-bool SPF2DeviceManager::isMemoryAvailable(uint64_t estimate) const {
-  // No fuzz factor for the SPF2 device.
+bool CevaSPF2DeviceManager::isMemoryAvailable(uint64_t estimate) const {
+  // No fuzz factor for the CevaSPF2 device.
   return maxMemoryBytes_ >= (usedMemoryBytes_ + estimate);
 }
 
-DeviceInfo SPF2DeviceManager::getDeviceInfo() const {
-  // TODO: these may need to be tweaked depending on specific SPF2.
+DeviceInfo CevaSPF2DeviceManager::getDeviceInfo() const {
+  // TODO: these may need to be tweaked depending on specific CevaSPF2.
   DeviceInfo info = DeviceInfo();
   info.sramCapacity = 256 * 1024 * 1024;
   info.peakCompute = 2.2 * 1024 * 1024 * 1024 * 1024;
@@ -58,7 +58,7 @@ DeviceInfo SPF2DeviceManager::getDeviceInfo() const {
   return info;
 }
 
-void SPF2DeviceManager::addNetworkImpl(const Module *module,
+void CevaSPF2DeviceManager::addNetworkImpl(const Module *module,
                                       FunctionMapTy functions,
                                       ReadyCBTy readyCB) {
   DCHECK(readyCB != nullptr);
@@ -78,12 +78,12 @@ void SPF2DeviceManager::addNetworkImpl(const Module *module,
       return;
     }
 
-    if (func.second->getCompileBackendName() != "SPF2") {
+    if (func.second->getCompileBackendName() != "CevaSPF2") {
       readyCB(
           module,
           MAKE_ERR(
               llvm::formatv(
-                  "Failed to add network: function {0} is not a SPF2Function",
+                  "Failed to add network: function {0} is not a CevaSPF2Function",
                   func.first)
                   .str()));
       return;
@@ -118,7 +118,7 @@ void SPF2DeviceManager::addNetworkImpl(const Module *module,
   readyCB(module, Error::success());
 }
 
-void SPF2DeviceManager::evictNetworkImpl(std::string functionName,
+void CevaSPF2DeviceManager::evictNetworkImpl(std::string functionName,
                                         EvictFunctionCBTy evictCB) {
   DCHECK(evictCB != nullptr);
 
@@ -139,7 +139,7 @@ void SPF2DeviceManager::evictNetworkImpl(std::string functionName,
   evictCB(functionName, Error::success());
 }
 
-void SPF2DeviceManager::runFunctionImpl(
+void CevaSPF2DeviceManager::runFunctionImpl(
     RunIdentifierTy id, std::string function,
     std::unique_ptr<ExecutionContext> context, ResultCBTy resultCB) {
   DCHECK(resultCB != nullptr);
@@ -147,7 +147,7 @@ void SPF2DeviceManager::runFunctionImpl(
   TRACE_EVENT_SCOPE_NAMED(context->getTraceContext(), TraceLevel::RUNTIME,
                           "DeviceManager::run", dmRun);
   if (context->getTraceContext()) {
-    context->getTraceContext()->setThreadName("SPF2 DeviceManager");
+    context->getTraceContext()->setThreadName("CevaSPF2 DeviceManager");
   }
   auto funcIt = functions_.find(function);
   if (funcIt == functions_.end()) {

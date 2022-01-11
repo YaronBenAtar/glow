@@ -13,18 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "SPF2Function.h"
 
-#include "glow/Graph/PlaceholderBindings.h"
-#include "glow/Support/Compiler.h"
-#include "glow/Support/Memory.h"
+#include "CevaSPF2Backend.h"
 
-using namespace glow;
+namespace glow {
 
-SPF2Function::SPF2Function(std::unique_ptr<llvm::orc::GlowJIT> JIT,
-                         runtime::RuntimeBundle &&runtimeBundle)
-    : LLVMCompiledFunction(std::move(JIT), std::move(runtimeBundle)) {}
+REGISTER_GLOW_BACKEND_FACTORY(CevaSPF2Factory, CevaSPF2Backend);
 
-Error SPF2Function::execute(ExecutionContext *context) {
-  return LLVMCompiledFunction::execute(context);
-}
+} // namespace glow

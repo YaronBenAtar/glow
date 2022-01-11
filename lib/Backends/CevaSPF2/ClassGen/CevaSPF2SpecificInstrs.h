@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-// #ifdef GLOW_WITH_SPF2
+// #ifdef GLOW_WITH_CevaSPF2
 
-BB.newBackendSpecificInstr("SPF2MaxSplat")
+BB.newBackendSpecificInstr("CevaSPF2MaxSplat")
     .addOperand("Dest", OperandKind::Out)
     .addOperand("Src", OperandKind::In)
     .addMember(MemberType::Float, "SplatValue")
@@ -23,7 +23,7 @@ BB.newBackendSpecificInstr("SPF2MaxSplat")
     .dataParallel()
     .autoIRGen();
 
-BB.newBackendSpecificInstr("SPF2ConvDKKC8")
+BB.newBackendSpecificInstr("CevaSPF2ConvDKKC8")
     .addOperand("Dest", OperandKind::Out)
     .addOperand("Src", OperandKind::In)
     .addOperand("Filter", OperandKind::In)
@@ -34,6 +34,6 @@ BB.newBackendSpecificInstr("SPF2ConvDKKC8")
     .addMember(MemberType::Unsigned, "Group")
     .autoIRGen();
 
-BB.includeBackendSpecificVerification("glow/SPF2SpecificInstrsVerification.h");
+BB.includeBackendSpecificVerification("glow/CevaSPF2SpecificInstrsVerification.h");
 
-//#endif // GLOW_WITH_SPF2
+//#endif // GLOW_WITH_CevaSPF2
